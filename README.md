@@ -146,4 +146,3 @@ I won't lie, it wasn't great. It is less of a faff than working with a monolithi
 or writing things in the console obviously, but it was not pleasant.
 
 The code highlighting was off wack as `//` was not seen as a comment. In the code in fact I could not do `/#[0-9A-Z]{6}/gi` as `#` was seen as a comment and thought the command was unterminated, so I had to `new RegExp` it, which is sad.
-
