@@ -67,6 +67,8 @@ class University {
         // ``this.options_div`` contains the possible matches of ``this.text_input``
             // Clear the div to remove previous buttons
             this.options_div.innerHTML = "";
+            this.svg_div.innerHTML = "";
+            this.color_radios.innerHTML = '';
 
             // Filter the universities array to get the matches based on input value
             const matches = universities.filter(uni =>
