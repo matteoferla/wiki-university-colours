@@ -1,5 +1,5 @@
 class University {
-/**
+    /**
      * Create a university.
      * @param {string} prefix - The prefix to use for element IDs.
      * @param {HTMLElement} container - The container element to append the university elements to.
@@ -18,11 +18,11 @@ class University {
      * @member {HTMLDivElement} options_div - The div containing the matching university buttons.
      * @member {HTMLDivElement} svg_div - The div containing the SVG for the university.
      * @member {HTMLDivElement} color_radios - The div containing the color radio buttons.
- */
-    constructor(prefix, container, description='', img_required=false) {
+     */
+    constructor(prefix, container, description = '', img_required = false) {
         this.prefix = prefix;
 
-        
+
         this.name = '';
         this.image_name = '';
         this.svg_url = '';
@@ -36,13 +36,13 @@ class University {
             throw new Error('container not a HTMLElement');
         }
         this.container = container;
-        
-        if (!! description) {
+
+        if (!!description) {
             let p = document.createElement('p');
             p.innerHTML = description;
             this.container.appendChild(p);
         }
-        
+
         this.text_input = document.createElement('input');
         this.text_input.setAttribute('type', 'text');
         this.text_input.setAttribute('id', this.prefix + 'uni_input');
@@ -52,102 +52,124 @@ class University {
         this.options_div = document.createElement('div');
         this.options_div.setAttribute('id', this.prefix + 'uni_options');
         this.container.appendChild(this.options_div);
-        
+
         this.svg_div = document.createElement('div');
         this.svg_div.id = this.prefix + 'svg_div';
         this.container.appendChild(this.svg_div);
 
         this.color_radios = document.createElement('div');
         this.color_radios.id = this.prefix + 'color_radios';
-        this.color_radios.setAttribute('name', this.prefix+'colors');
+        this.color_radios.setAttribute('name', this.prefix + 'colors');
         this.container.appendChild(this.color_radios);
     }
 
     activate_input() {
         // ``this.options_div`` contains the possible matches of ``this.text_input``
-            // Clear the div to remove previous buttons
-            this.options_div.innerHTML = "";
-            this.svg_div.innerHTML = "";
-            this.color_radios.innerHTML = '';
+        // Clear the div to remove previous buttons
+        this.options_div.innerHTML = "";
+        this.svg_div.innerHTML = "";
+        this.color_radios.innerHTML = '';
 
-            // Filter the universities array to get the matches based on input value
-            const matches = universities.filter(uni =>
-                uni.name.toLowerCase().includes(this.text_input.value.toLowerCase())
-            );
+        // Filter the universities array to get the matches based on input value
+        const matches = universities.filter(uni =>
+            uni.name.toLowerCase().includes(this.text_input.value.toLowerCase())
+        );
 
-            // Loop through the filtered matches and add a button for each match
-            //console.log(matches);
-            matches.slice(0, 10).forEach(uni => {
-                const button = document.createElement("button");
-                button.innerHTML = uni.name;
-                button.style.backgroundColor = uni.colors.length ? uni.colors[0] : 'white';
-                button.dataset.name = uni.name;
-                button.dataset.colors = JSON.stringify(uni.colors);
-                button.dataset.image_name = uni.image_name;
-                if (this.img_required && uni.image_name === '') {
-                    button.disabled = true;
-                }
-                button.addEventListener("click", this.button_onclick.bind(this));
-                this.options_div.appendChild(button);
-            });
-        }
-
-        button_onclick(event) {
-                const button = event.target;
-                this.name = button.dataset.name;
-                this.image_name = button.dataset.image_name;
-                JSON.parse(button.dataset.colors).map(s => s.toUpperCase()).forEach(this.colors.add, this.colors);
-                this.update_colors();
-                
-                const api_url = 'https://en.wikipedia.org/w/api.php?action=query&prop=imageinfo&iiprop=url&format=json&origin=*&titles=Image:'
-                this.svg_url = api_url + escape(button.dataset.image_name);
-                fetch(api_url + escape(button.dataset.image_name))
-                    .then(response => response.json())
-                    .then(data => {
-                        this.svg_url = Object.values(data.query.pages)[0].imageinfo[0].url;
-                        if (this.svg_url.match(/svg$/)) {
-                            fetch(this.svg_url)
-                                .then(r => r.text())
-                                .then(this.load_svg.bind(this));
-                        }
-                        else if (! this.img_required) {
-                            //pass
-                        }
-                        else {
-                            alert('Sorry, not an svg, try different target.')
-                            throw new Error('not an svg');
-                        }
-                    });
+        // Loop through the filtered matches and add a button for each match
+        //console.log(matches);
+        matches.slice(0, 10).forEach(uni => {
+            const button = document.createElement("button");
+            button.innerHTML = uni.name;
+            button.style.backgroundColor = uni.colors.length ? uni.colors[0] : 'white';
+            button.dataset.name = uni.name;
+            button.dataset.colors = JSON.stringify(uni.colors);
+            button.dataset.image_name = uni.image_name;
+            if (this.img_required && uni.image_name === '') {
+                button.disabled = true;
             }
-       
-       load_svg(svg) {
-                        this.svg_div.innerHTML = svg;
-                        this.svg_block = svg;
-                        // # the regex litteral /#[0-9A-F]{6}/gi causes issues with the notebook as it thinks its python
-                        [...svg.matchAll(new RegExp('#[0-9A-F]{6}', 'gi'))]
-                                               .map(a => a[0].toUpperCase())
-                                               .forEach(this.colors.add, this.colors);
-                        this.update_colors();
-                    }
-                          
-      update_colors() {
-            this.color_radios.innerHTML = '';
-            this.colors.forEach(color => {
-                const clean = this.prefix+color.replace('#', 'color');
-                const l = document.createElement('label');
-                l.innerHTML = color;
-                l.style.color = color;
-                l.setAttribute('for', clean);
-                const o = document.createElement('input');
-                o.setAttribute("type", "radio");
-                o.setAttribute('value', color);
-                o.setAttribute('name', this.prefix+'colors');
-                o.setAttribute('name', clean);
-                o.addEventListener('change', (event) => { if (event.target.checked) {this.selected_color = color}});
-                this.color_radios.appendChild(o);
-                this.color_radios.appendChild(l);
+            button.addEventListener("click", this.button_onclick.bind(this));
+            this.options_div.appendChild(button);
+        });
+    }
+
+    button_onclick(event) {
+        const button = event.target;
+        this.name = button.dataset.name;
+        this.image_name = button.dataset.image_name;
+        JSON.parse(button.dataset.colors).map(s => s.toUpperCase()).forEach(this.colors.add, this.colors);
+        this.update_colors();
+
+        const api_url = 'https://en.wikipedia.org/w/api.php?action=query&prop=imageinfo&iiprop=url&format=json&origin=*&titles=Image:'
+        this.svg_url = api_url + escape(button.dataset.image_name);
+        fetch(api_url + escape(button.dataset.image_name))
+            .then(response => response.json())
+            .then(data => {
+                this.svg_url = Object.values(data.query.pages)[0].imageinfo[0].url;
+                if (this.svg_url.match(/svg$/)) {
+                    fetch(this.svg_url)
+                        .then(r => r.text())
+                        .then(this.load_svg.bind(this));
+                } else if (!this.img_required) {
+                    //pass
+                } else {
+                    alert('Sorry, not an svg, try different target.')
+                    throw new Error('not an svg');
+                }
             });
-      }   
+    }
+
+    load_svg(svg) {
+        this.svg_div.innerHTML = svg;
+        this.svg_block = svg;
+        // # the regex litteral /#[0-9A-F]{6}/gi causes issues with the notebook as it thinks its python
+        [...svg.matchAll(new RegExp('#[0-9A-F]{6}', 'gi'))]
+        .map(a => a[0].toUpperCase())
+            .forEach(this.colors.add, this.colors);
+        this.update_colors();
+    }
+
+    update_colors() {
+        this.color_radios.innerHTML = '';
+        this.colors.forEach(color => {
+            const clean = this.prefix + color.replace('#', 'color');
+            const l = document.createElement('label');
+            l.innerHTML = color;
+            l.style.color = color;
+            l.setAttribute('for', clean);
+            const o = document.createElement('input');
+            o.setAttribute("type", "radio");
+            o.setAttribute('value', color);
+            o.setAttribute('name', this.prefix + 'colors');
+            o.setAttribute('id', clean);
+            o.addEventListener('change', (event) => {
+                if (event.target.checked) {
+                    this.selected_color = color
+                }
+            });
+            this.color_radios.appendChild(o);
+            this.color_radios.appendChild(l);
+        });
+        const free_l = document.createElement('label');
+        free_l.innerHTML = '<input type="text" value="#hhhhhh"></input>';
+        free_l.setAttribute('for', this.prefix + 'free_color');
+        const free_o = document.createElement('input');
+        free_o.setAttribute("type", "radio");
+        free_o.setAttribute('name', this.prefix + 'colors');
+        free_o.setAttribute('id', this.prefix + 'free_color');
+        free_o.addEventListener('change', (event) => {
+            if (!event.target.checked) {
+                return null;
+            }
+            const user_color = event.target.nextSibling.firstChild.value;
+            if (!user_color.match(new RegExp('^#[0-9A-F]{6}$', 'gi'))) {
+                alert('hexadecimal format colours only!');
+                event.target.checked = false;
+            }
+            this.selected_color = user_color;
+        });
+        this.color_radios.appendChild(free_o);
+        this.color_radios.appendChild(free_l);
+    }
 }
 class UniCombineColor {
     constructor(container) {
@@ -162,23 +184,23 @@ class UniCombineColor {
         this.out_div = document.createElement('div');
         this.container.appendChild(this.out_div);
     }
-    
+
     combine(event) {
         this.out_div.innerHTML = '';
-        if (! this.image_donor.svg_block) {
+        if (!this.image_donor.svg_block) {
             this.out_div.innerHTML = '<span>Error: select an image donor!</span>';
-        }
-        else if (! this.image_donor.selected_color) {
+        } else if (!this.image_donor.selected_color) {
             this.out_div.innerHTML = '<span>Error: select a colour from the image donor!</span>';
-        }
-        else if (! this.image_donor.selected_color) {
+        } else if (!this.image_donor.selected_color) {
             this.out_div.innerHTML = '<span>Error: select a colour from the colour donor!</span>';
-        }
-        else {
+        } else {
             this.svg_collage_block = this.image_donor.svg_block.replace(new RegExp(this.image_donor.selected_color, 'gi'), this.color_donor.selected_color);
             this.out_div.innerHTML = this.svg_collage_block;
         }
     }
 }
 
-export { University, UniCombineColor };
+export {
+    University,
+    UniCombineColor
+};

@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Swapped university logo colour generator</title>
+  </head>
+  <body>
+    <script>
+      // Retrieve the JSON file
+      fetch('universities.json')
+        .then(response => response.json())
+        .then(universities => {window.universities = universities; 
+                               return import('university.js');
+                              })
+        .then(module => {
+                              window.University = module.University;
+                              window.UniCombineColor = module.UniCombineColor;
+                              window.combiner = new UniCombineColor(document.body);
+                    });
+    </script>
+  </body>
+</html>
